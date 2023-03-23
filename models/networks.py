@@ -169,19 +169,16 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
     elif netG == 'deeplabv3plus': # TODO: Add selection of different backbones
         net = deeplabv3plus_mobilenet(num_classes=output_nc, output_stride=1) # TODO: Output stride above 1 maxes out 6GiB of VRAM
     elif netG == 'pspnet':
-        ENCODER = 'resnext50_32x4d'
-        ENCODER_WEIGHTS = 'imagenet'
-        x = []
-        for i in range(input_nc):
-            x.append(0)
-        CLASSES = x
+        ENCODER = 'resnext50_32x4d'   
         ACTIVATION = 'sigmoid' # could be None for logits or 'softmax2d' for multiclass segmentation
 
         # create segmentation model with pretrained encoder
         net = smp.PSPNet(
             encoder_name=ENCODER, 
-            encoder_weights=ENCODER_WEIGHTS, 
-            classes=len(CLASSES), 
+            encoder_weights='imagenet',
+            in_channels=input_nc,
+            classes=output_nc,
+            psp_use_batchnorm=norm_layer!=None,    
             activation=ACTIVATION,
         )
     else:
