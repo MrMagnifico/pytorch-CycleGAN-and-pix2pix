@@ -3,7 +3,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-import extractors
+from . import extractors
 
 
 class PSPModule(nn.Module):
@@ -42,7 +42,7 @@ class PSPUpsample(nn.Module):
 
 
 class PSPNet(nn.Module):
-    def __init__(self, n_classes=18, sizes=(1, 2, 3, 6), psp_size=2048, deep_features_size=1024, backend='resnet34',
+    def __init__(self, n_classes=18,sizes=(1, 2, 3, 6), psp_size=512, deep_features_size=256, backend='resnet34',
                  pretrained=True):
         super().__init__()
         self.feats = getattr(extractors, backend)(pretrained)

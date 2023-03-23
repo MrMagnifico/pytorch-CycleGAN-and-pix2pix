@@ -4,6 +4,8 @@ import functools
 from torch.nn import init
 from torch.optim import lr_scheduler
 from torchinfo import summary
+import segmentation_models_pytorch as smp
+from models.external.pspnet.pspnet import PSPNet
 from .external.hrnet.hrnet import hrnet18, hrnet32, hrnet48
 from .external.deeplabv3plus.modeling import deeplabv3plus_mobilenet
 
@@ -166,6 +168,22 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         net = hrnet48(progress=False, input_nc=input_nc, output_nc=output_nc, norm_layer=norm_layer)
     elif netG == 'deeplabv3plus': # TODO: Add selection of different backbones
         net = deeplabv3plus_mobilenet(num_classes=output_nc, output_stride=1) # TODO: Output stride above 1 maxes out 6GiB of VRAM
+    elif netG == 'pspnet':
+        ENCODER = 'resnext50_32x4d'
+        ENCODER_WEIGHTS = 'imagenet'
+        x = []
+        for i in range(input_nc):
+            x.append(0)
+        CLASSES = x
+        ACTIVATION = 'sigmoid' # could be None for logits or 'softmax2d' for multiclass segmentation
+
+        # create segmentation model with pretrained encoder
+        net = smp.PSPNet(
+            encoder_name=ENCODER, 
+            encoder_weights=ENCODER_WEIGHTS, 
+            classes=len(CLASSES), 
+            activation=ACTIVATION,
+        )
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
     
