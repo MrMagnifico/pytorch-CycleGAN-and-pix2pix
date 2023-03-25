@@ -175,11 +175,11 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         # create segmentation model with pretrained encoder
         net = smp.PSPNet(
             encoder_name=ENCODER, 
-            encoder_weights='imagenet',
+            encoder_weights=None,
             in_channels=input_nc,
             classes=output_nc,
             psp_use_batchnorm=norm_layer!=None,    
-            activation=ACTIVATION,
+            activation=nn.ReLU,
         )
     elif netG == 'unetpp':
         ENCODER = 'resnext50_32x4d'   
@@ -188,24 +188,24 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         # create segmentation model with pretrained encoder
         net = smp.UnetPlusPlus(
             encoder_name=ENCODER, 
-            encoder_weights='imagenet',
+            encoder_weights=None,
             in_channels=input_nc,
             classes=output_nc,
             decoder_use_batchnorm=norm_layer!=None,    
-            activation=ACTIVATION,
+            activation=nn.ReLU,
         )
     elif netG == 'linknet':
         ENCODER = 'resnext50_32x4d'   
-        ACTIVATION = 'sigmoid' # could be None for logits or 'softmax2d' for multiclass segmentation
+        ACTIVATION = 'logsoftmax' # could be None for logits or 'softmax2d' for multiclass segmentation
 
         # create segmentation model with pretrained encoder
         net = smp.Linknet(
             encoder_name=ENCODER, 
-            encoder_weights='imagenet',
+            encoder_weights=None,
             in_channels=input_nc,
             classes=output_nc,
             decoder_use_batchnorm=norm_layer!=None,    
-            activation=ACTIVATION,
+            activation=nn.ReLU,
         )
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
