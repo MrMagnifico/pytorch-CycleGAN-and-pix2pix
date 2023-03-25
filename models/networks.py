@@ -179,7 +179,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
             in_channels=input_nc,
             classes=output_nc,
             psp_use_batchnorm=norm_layer!=None,    
-            activation=nn.ReLU,
+            activation=None,
         )
     elif netG == 'unetpp':
         ENCODER = 'resnext50_32x4d'   
@@ -192,7 +192,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
             in_channels=input_nc,
             classes=output_nc,
             decoder_use_batchnorm=norm_layer!=None,    
-            activation=nn.ReLU,
+            activation=None,
         )
     elif netG == 'linknet':
         ENCODER = 'resnext50_32x4d'   
@@ -205,7 +205,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
             in_channels=input_nc,
             classes=output_nc,
             decoder_use_batchnorm=norm_layer!=None,    
-            activation=nn.ReLU,
+            activation=None,
         )
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
