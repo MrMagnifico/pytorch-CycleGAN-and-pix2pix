@@ -44,21 +44,21 @@ for file in files:
         # Convert the PIL image to Torch tensor
         im = transform(Image.open('{path}/{file}'.format(path=path, file = file)).convert('RGB'))
        
-        real.append(im)
+        real.append(im.unsqueeze(0))
     elif file.find("fake_B")>=0:
         im = transform(Image.open('{path}/{file}'.format(path=path, file = file)).convert('RGB'))
-        fake.append(im)
+        fake.append(im.unsqueeze(0))
     else:
         im = transform(Image.open('{path}/{file}'.format(path=path, file = file)).convert('RGB'))
-        orig.append(im)
+        orig.append(im.unsqueeze(0))
 len_real = len(real)
-real = numpy.array(real)
-# print(real)
+# real = numpy.array(real)
+# # print(real)
 
 
-len_fake = len(fake)
-print(len_real, len_fake)
-fake = numpy.array(fake)
+# len_fake = len(fake)
+# print(len_real, len_fake)
+# fake = numpy.array(fake)
 # print(fake)
 
 # res = calculate_fid(fake, real)
@@ -73,8 +73,15 @@ actFake = []
 for i in range(len_real):
     inp = torch.cat((orig[i], fake[i]), 1)
     inp = inp.type(torch.FloatTensor)
+    
     act1 = model.forward(inp)
-    # act2 = model.forward(torch.cat((orig[i], real[i]), 1))
-    print(act1)
+    # print(act1)
+    actFake.append(act1.detach().numpy())
+    inp = torch.cat((orig[i], real[i]), 1)
+    inp = inp.type(torch.FloatTensor)
+    act2 = model.forward(inp)
+    actReal.append(act2.detach().numpy())
+    # print(act1)
 # print(act2)
-
+res = calculate_fid( numpy.array(actReal),numpy.array(actFake))
+print(res)
