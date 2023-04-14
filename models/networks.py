@@ -167,14 +167,17 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         net = hrnet32(progress=False, input_nc=input_nc, output_nc=output_nc, norm_layer=norm_layer)
     elif netG == 'hrnet_48':
         net = hrnet48(progress=False, input_nc=input_nc, output_nc=output_nc, norm_layer=norm_layer)
-    elif netG == 'deeplabv3plus': # TODO: Add selection of different backbones
-        net = deeplabv3plus_mobilenet(num_classes=output_nc, output_stride=1) # TODO: Output stride above 1 maxes out 6GiB of VRAM
+    elif netG == 'deeplabv3plus':
+        ENCODER = 'resnet50' 
+        net = smp.DeepLabV3Plus(
+            encoder_name=ENCODER,
+            encoder_weights=None,
+            in_channels=input_nc,
+            classes=output_nc,
+            activation=nn.Tanh,
+        )
     elif netG == 'pspnet':
-        # net = PSPNet(num_classes=output_nc, in_channels=input_nc, pretrained=False, freeze_backbone=True, use_aux = False)
         ENCODER = 'resnet50'   
-        # ACTIVATION = 'sigmoid' # could be None for logits or 'softmax2d' for multiclass segmentation
-
-        # # create segmentation model with pretrained encoder
         net = smp.PSPNet(
             encoder_name=ENCODER, 
             encoder_weights=None,
@@ -182,11 +185,9 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
             classes=output_nc,
             psp_use_batchnorm=norm_layer!=None,    
             activation=nn.Tanh,   
-            # aux_params={"classes": output_nc, "dropout": 0.5},
         )
     elif netG == 'unetpp':
         ENCODER = 'resnet50'   
-        # create segmentation model with pretrained encoder
         net = smp.UnetPlusPlus(
             encoder_name=ENCODER, 
             encoder_weights=None,
@@ -194,14 +195,10 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
             classes=output_nc,
             decoder_use_batchnorm=norm_layer!=None,    
             activation=nn.Tanh,
-
-            # aux_params={"dropout": 0.5},
         )
     elif netG == 'linknet':
-        ENCODER = 'resnet50'   
-        ACTIVATION = 'softmax2d' # could be None for logits or 'softmax2d' for multiclass segmentation
-
-        # create segmentation model with pretrained encoder
+        # Create segmentation model with pretrained encoder
+        ENCODER = 'resnet50' 
         net = smp.Linknet(
             encoder_name=ENCODER, 
             encoder_weights=None,
@@ -209,7 +206,6 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
             classes=output_nc,
             decoder_use_batchnorm=norm_layer!=None,    
             activation=nn.Tanh,
-            # aux_params={"dropout": 0.5},
         )
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
