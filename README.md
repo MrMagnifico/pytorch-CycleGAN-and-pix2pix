@@ -1,95 +1,145 @@
 
-<img src='imgs/horse2zebra.gif' align="right" width=384>
+# CycleGAN and pix2pix in PyTorch - FORK
+## Nikolay Blagoev and William Narchi
+<br>
 
-<br><br><br>
+## The aim of this project is to evaluate pix2pix with different generators
+<br>
 
-# CycleGAN and pix2pix in PyTorch
-
-**New**:  Please check out [contrastive-unpaired-translation](https://github.com/taesungp/contrastive-unpaired-translation) (CUT), our new unpaired image-to-image translation model that enables fast and memory-efficient training.
-
-We provide PyTorch implementations for both unpaired and paired image-to-image translation.
-
-The code was written by [Jun-Yan Zhu](https://github.com/junyanz) and [Taesung Park](https://github.com/taesungp), and supported by [Tongzhou Wang](https://github.com/SsnL).
-
-This PyTorch implementation produces results comparable to or better than our original Torch software. If you would like to reproduce the same results as in the papers, check out the original [CycleGAN Torch](https://github.com/junyanz/CycleGAN) and [pix2pix Torch](https://github.com/phillipi/pix2pix) code in Lua/Torch.
-
-**Note**: The current software works well with PyTorch 1.4. Check out the older [branch](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/tree/pytorch0.3.1) that supports PyTorch 0.1-0.3.
-
-You may find useful information in [training/test tips](docs/tips.md) and [frequently asked questions](docs/qa.md). To implement custom models and datasets, check out our [templates](#custom-model-and-dataset). To help users better understand and adapt our codebase, we provide an [overview](docs/overview.md) of the code structure of this repository.
-
-**CycleGAN: [Project](https://junyanz.github.io/CycleGAN/) |  [Paper](https://arxiv.org/pdf/1703.10593.pdf) |  [Torch](https://github.com/junyanz/CycleGAN) |
-[Tensorflow Core Tutorial](https://www.tensorflow.org/tutorials/generative/cyclegan) | [PyTorch Colab](https://colab.research.google.com/github/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/CycleGAN.ipynb)**
-
-<img src="https://junyanz.github.io/CycleGAN/images/teaser_high_res.jpg" width="800"/>
-
-**Pix2pix:  [Project](https://phillipi.github.io/pix2pix/) |  [Paper](https://arxiv.org/pdf/1611.07004.pdf) |  [Torch](https://github.com/phillipi/pix2pix) |
-[Tensorflow Core Tutorial](https://www.tensorflow.org/tutorials/generative/pix2pix) | [PyTorch Colab](https://colab.research.google.com/github/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/pix2pix.ipynb)**
-
-<img src="https://phillipi.github.io/pix2pix/images/teaser_v3.png" width="800px"/>
-
-
-**[EdgesCats Demo](https://affinelayer.com/pixsrv/) | [pix2pix-tensorflow](https://github.com/affinelayer/pix2pix-tensorflow) | by [Christopher Hesse](https://twitter.com/christophrhesse)**
-
-<img src='imgs/edges2cats.jpg' width="400px"/>
-
-If you use this code for your research, please cite:
-
-Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks.<br>
-[Jun-Yan Zhu](https://www.cs.cmu.edu/~junyanz/)\*,  [Taesung Park](https://taesung.me/)\*, [Phillip Isola](https://people.eecs.berkeley.edu/~isola/), [Alexei A. Efros](https://people.eecs.berkeley.edu/~efros). In ICCV 2017. (* equal contributions) [[Bibtex]](https://junyanz.github.io/CycleGAN/CycleGAN.txt)
-
+## Original paper
 
 Image-to-Image Translation with Conditional Adversarial Networks.<br>
 [Phillip Isola](https://people.eecs.berkeley.edu/~isola), [Jun-Yan Zhu](https://www.cs.cmu.edu/~junyanz/), [Tinghui Zhou](https://people.eecs.berkeley.edu/~tinghuiz), [Alexei A. Efros](https://people.eecs.berkeley.edu/~efros). In CVPR 2017. [[Bibtex]](https://www.cs.cmu.edu/~junyanz/projects/pix2pix/pix2pix.bib)
 
-## Talks and Course
-pix2pix slides: [keynote](http://efrosgans.eecs.berkeley.edu/CVPR18_slides/pix2pix.key) | [pdf](http://efrosgans.eecs.berkeley.edu/CVPR18_slides/pix2pix.pdf),
-CycleGAN slides: [pptx](http://efrosgans.eecs.berkeley.edu/CVPR18_slides/CycleGAN.pptx) | [pdf](http://efrosgans.eecs.berkeley.edu/CVPR18_slides/CycleGAN.pdf)
+## Introduction
+TODO : ADD
 
-CycleGAN course assignment [code](http://www.cs.toronto.edu/~rgrosse/courses/csc321_2018/assignments/a4-code.zip) and [handout](http://www.cs.toronto.edu/~rgrosse/courses/csc321_2018/assignments/a4-handout.pdf) designed by Prof. [Roger Grosse](http://www.cs.toronto.edu/~rgrosse/) for [CSC321](http://www.cs.toronto.edu/~rgrosse/courses/csc321_2018/) "Intro to Neural Networks and Machine Learning" at University of Toronto. Please contact the instructor if you would like to adopt it in your course.
+## Decoder Networks Tested
+- Unet (default for pix2pix)
+- Unet++ [paper](https://arxiv.org/pdf/1807.10165.pdf)
+- DeepLabV3+ [paper](https://arxiv.org/abs/1802.02611)
+- PSPNet [paper](https://arxiv.org/abs/1612.01105)
+- HRNet [paper](TODO : ADD)
+- LinkNet [paper](https://arxiv.org/abs/1707.03718)
+TODO - ADD LINKS TO IMPLEMENTATIONS
 
-## Colab Notebook
-TensorFlow Core CycleGAN Tutorial: [Google Colab](https://colab.research.google.com/github/tensorflow/docs/blob/master/site/en/tutorials/generative/cyclegan.ipynb) | [Code](https://github.com/tensorflow/docs/blob/master/site/en/tutorials/generative/cyclegan.ipynb)
+For each we followed the generator struture described in the paper (Convolution, Batch Normalisation, Relu).
 
-TensorFlow Core pix2pix Tutorial: [Google Colab](https://colab.research.google.com/github/tensorflow/docs/blob/master/site/en/tutorials/generative/pix2pix.ipynb) | [Code](https://github.com/tensorflow/docs/blob/master/site/en/tutorials/generative/pix2pix.ipynb)
+## Experimental setup
+Due to time limitations we tested only on the [facades](https://cmp.felk.cvut.cz/~tylecr1/facade/) dataset.
 
-PyTorch Colab notebook: [CycleGAN](https://colab.research.google.com/github/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/CycleGAN.ipynb) and [pix2pix](https://colab.research.google.com/github/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/pix2pix.ipynb)
+A generator network was trained with each decoder for 200 epochs. The final results were then evaluated qualitatively (visual appearance) and quantitatively (via the FID score and a comparison of the loss scores). We chose the measures from this [paper](https://arxiv.org/abs/1802.03446) based on how useful they were for our purposes. 
 
-ZeroCostDL4Mic Colab notebook: [CycleGAN](https://colab.research.google.com/github/HenriquesLab/ZeroCostDL4Mic/blob/master/Colab_notebooks_Beta/CycleGAN_ZeroCostDL4Mic.ipynb) and [pix2pix](https://colab.research.google.com/github/HenriquesLab/ZeroCostDL4Mic/blob/master/Colab_notebooks_Beta/pix2pix_ZeroCostDL4Mic.ipynb)
+## Mode collapse
+Following the architecture described in the paper (Convolution, Batch Normalisation, Relu), we encountered mode collapse (the GAN found a single image which would trick the discriminator):
 
-## Other implementations
-### CycleGAN
-<p><a href="https://github.com/leehomyc/cyclegan-1"> [Tensorflow]</a> (by Harry Yang),
-<a href="https://github.com/architrathore/CycleGAN/">[Tensorflow]</a> (by Archit Rathore),
-<a href="https://github.com/vanhuyz/CycleGAN-TensorFlow">[Tensorflow]</a> (by Van Huy),
-<a href="https://github.com/XHUJOY/CycleGAN-tensorflow">[Tensorflow]</a> (by Xiaowei Hu),
-<a href="https://github.com/LynnHo/CycleGAN-Tensorflow-2"> [Tensorflow2]</a> (by Zhenliang He),
-<a href="https://github.com/luoxier/CycleGAN_Tensorlayer"> [TensorLayer1.0]</a> (by luoxier),
-<a href="https://github.com/tensorlayer/cyclegan"> [TensorLayer2.0]</a> (by zsdonghao),
-<a href="https://github.com/Aixile/chainer-cyclegan">[Chainer]</a> (by Yanghua Jin),
-<a href="https://github.com/yunjey/mnist-svhn-transfer">[Minimal PyTorch]</a> (by yunjey),
-<a href="https://github.com/Ldpe2G/DeepLearningForFun/tree/master/Mxnet-Scala/CycleGAN">[Mxnet]</a> (by Ldpe2G),
-<a href="https://github.com/tjwei/GANotebooks">[lasagne/Keras]</a> (by tjwei),
-<a href="https://github.com/simontomaskarlsson/CycleGAN-Keras">[Keras]</a> (by Simon Karlsson),
-<a href="https://github.com/Ldpe2G/DeepLearningForFun/tree/master/Oneflow-Python/CycleGAN">[OneFlow]</a> (by Ldpe2G)
-</p>
-</ul>
+<img src='imgs/ModeCollapse.png' width=384>
+<br>
 
-### pix2pix
-<p><a href="https://github.com/affinelayer/pix2pix-tensorflow"> [Tensorflow]</a> (by Christopher Hesse),
-<a href="https://github.com/Eyyub/tensorflow-pix2pix">[Tensorflow]</a> (by Eyyüb Sariu),
-<a href="https://github.com/datitran/face2face-demo"> [Tensorflow (face2face)]</a> (by Dat Tran),
-<a href="https://github.com/awjuliani/Pix2Pix-Film"> [Tensorflow (film)]</a> (by Arthur Juliani),
-<a href="https://github.com/kaonashi-tyc/zi2zi">[Tensorflow (zi2zi)]</a> (by Yuchen Tian),
-<a href="https://github.com/pfnet-research/chainer-pix2pix">[Chainer]</a> (by mattya),
-<a href="https://github.com/tjwei/GANotebooks">[tf/torch/keras/lasagne]</a> (by tjwei),
-<a href="https://github.com/taey16/pix2pixBEGAN.pytorch">[Pytorch]</a> (by taey16)
-</p>
-</ul>
+This happened regardless of the decoder used in the generator. If the last ReLU activation layer was removed, patchy artificats were produced (even at 200 epochs):
 
-## Prerequisites
-- Linux or macOS
-- Python 3
-- CPU or NVIDIA GPU + CUDA CuDNN
+<img src='imgs/artifcats.png' width=384>
+<br>
+
+The original implementation adds a TanH activation function at the outter most upscaling layer:
+
+```python
+if outermost:
+    upconv = nn.ConvTranspose2d(inner_nc * 2, outer_nc,
+                                  kernel_size=4, stride=2,
+                                  padding=1)
+    down = [downconv]
+    up = [uprelu, upconv, nn.Tanh()]
+    model = down + [submodule] + up
+
+```
+
+Thus we followed the same structure. All layers apart from the last one had a ReLU activation, while the outtermost one - a Tanh.
+
+
+## Qualitative Evaluation
+| Real   |      Unet   |    Unet++    |    DeeplabV3+    |   PSPNet    |   LinkNet    | HRNET    |
+|----------|:---------:|:---------:|:---------:|:---------:|:---------:|----------:|
+| <img src='imgs/10_real_B.png' width=120> |  <img src='imgs/10_fake_B_unet.png' width=120> | <img src='imgs/10_fake_B_unetpp.png' width=120> |<img src='imgs/10_fake_B_deeplab.png' width=120> | <img src='imgs/10_fake_B_psp.png' width=120> | <img src='imgs/10_fake_B_linknet.png' width=120> | <img src='imgs/10_fake_B_hrnet.png' width=120> |
+| <img src='imgs/4_real_B.png' width=120> |  <img src='imgs/4_fake_B_unet.png' width=120> | <img src='imgs/4_fake_B_unetpp.png' width=120> |<img src='imgs/4_fake_B_deeplab.png' width=120> | <img src='imgs/4_fake_B_psp.png' width=120> | <img src='imgs/4_fake_B_linknet.png' width=120> | <img src='imgs/4_fake_B_hrnet.png' width=120> |
+
+
+<br>
+
+
+All generators were able to recreate some semblance of structure in the fake (or generated) image. Some notion of windows and a facade exist in all of them.
+
+Visually, PSPNet decoder gave the worst results. The final result is blurry and black patches can be seen in the same spot on all images. Second worst was the DeepLabV3+. A more clear structure can be seen in it, however some artifacts exist (bottom row is best seen) and the images are quite blurry. HRNet gave decent results, however they still look quite blurry. Surprisingly, the LinkNet produced a very clear and coherent image for the first input. The best performing were the two UNets (and close the LinkNet), though for the second row some artifacts can be seen (quite noticeable in the UNet++ and some in the UNet at the bottom part of the building).
+<br>
+
+## Quantitative Evaluation
+### FID scores
+
+The Frechet Inception Distance is used to evaluate the quality of generated images. It compares the excitation of a feature extractor of the ground truth and generated images to produce a single scalar score, where lower means better. Since the release of the paper in 2017, it has become a de facto standard for evaluating the performance of generative networks. 
+
+For the feature extractor we chose the InceptionV3. A batch of 40 previously unseen images were fed to the generator. The new "fake" images were then compared with the ground truth and the fid scores for each decoder are given below:
+
+|   |     FID    | 
+|----------|------:|
+| UNet (default) | 218.483 |
+| UNet++ |   244.796 |
+| DeepLabV3+ |    318.598 |
+| PSPNet |    416.964 |
+| LinkNet |    232.488 |
+| HRNet |    297.469 |
+
+PSPNet performed the worst (as evident by the results). Surprisingly, the LinkNet gave a lower result than the UNet++. Their stock UNet performed the best, but we attribute this to hyperparameter tuning, which we were not able to do, due to limited training time.
+
+
+### Colour distributions
+
+TODO: compare with K-S test
+
+Of interest could also be the colour disributions of each decoder. Our hypothesis is that decoders who give the best results also approximate well the colour distributions of the original images. Also it could be interesting to investigate whether some decoders generate a preference for certain colour extremes (darker images, more blue, etc).
+
+First we investigate the results of the stock unet decoder.
+
+<img src='imgs/red_pix2pixunet256.png' width=384>
+<br>
+<img src='imgs/blue_pix2pixunet256.png' width=384>
+<br>
+<img src='imgs/green_pix2pixunet256.png' width=384>
+<br>
+
+As seen, for all channels, the distribution of the real and fake images has a similar mean and a bump can be seen at the highest values (above 240). The spikes in the real distribution for values lower than 20 are because many of the source images includded black frames blocking part of the image. The unet generator estimates the true colour distribution well.
+
+
+First we investigate the results of the UNet++ decoder.
+
+<img src='imgs/red_pix2pixunetppnew.png' width=384>
+<br>
+<img src='imgs/blue_pix2pixunetppnew.png' width=384>
+<br>
+<img src='imgs/green_pix2pixunetppnew.png' width=384>
+<br>
+
+The UNet++ decoder estimates even better the true distribution with a much more noticeable spike at the mean value.
+
+Next is linknet.
+
+<img src='imgs/red_pix2pixlinknet.png' width=384>
+<br>
+<img src='imgs/blue_pix2pixlinknet.png' width=384>
+<br>
+<img src='imgs/green_pix2pixlinknet.png' width=384>
+<br>
+
+Linknet has a performance somewhere between the UNet++ and the Unet, with a much more lower spike in the mean values than UNet++.
+
+Lastly is PSPNet
+
+<img src='imgs/red_pix2pixpspnetnew.png' width=384>
+<br>
+<img src='imgs/blue_pix2pixpspnetnew.png' width=384>
+<br>
+<img src='imgs/green_pix2pixpspnetnew.png' width=384>
+<br>
+<br>
 
 ## Getting Started
 ### Installation
@@ -106,25 +156,6 @@ cd pytorch-CycleGAN-and-pix2pix
   - For Docker users, we provide the pre-built Docker image and Dockerfile. Please refer to our [Docker](docs/docker.md) page.
   - For Repl users, please click [![Run on Repl.it](https://repl.it/badge/github/junyanz/pytorch-CycleGAN-and-pix2pix)](https://repl.it/github/junyanz/pytorch-CycleGAN-and-pix2pix).
 
-### CycleGAN train/test
-- Download a CycleGAN dataset (e.g. maps):
-```bash
-bash ./datasets/download_cyclegan_dataset.sh maps
-```
-- To view training results and loss plots, run `python -m visdom.server` and click the URL http://localhost:8097.
-- To log training progress and test images to W&B dashboard, set the `--use_wandb` flag with train and test script
-- Train a model:
-```bash
-#!./scripts/train_cyclegan.sh
-python train.py --dataroot ./datasets/maps --name maps_cyclegan --model cycle_gan
-```
-To see more intermediate results, check out `./checkpoints/maps_cyclegan/web/index.html`.
-- Test the model:
-```bash
-#!./scripts/test_cyclegan.sh
-python test.py --dataroot ./datasets/maps --name maps_cyclegan --model cycle_gan
-```
-- The test results will be saved to a html file here: `./results/maps_cyclegan/latest_test/index.html`.
 
 ### pix2pix train/test
 - Download a pix2pix dataset (e.g.[facades](http://cmp.felk.cvut.cz/~tylecr1/facade/)):
@@ -148,24 +179,7 @@ python test.py --dataroot ./datasets/facades --name facades_pix2pix --model pix2
 - The test results will be saved to a html file here: `./results/facades_pix2pix/test_latest/index.html`. You can find more scripts at `scripts` directory.
 - To train and test pix2pix-based colorization models, please add `--model colorization` and `--dataset_mode colorization`. See our training [tips](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/docs/tips.md#notes-on-colorization) for more details.
 
-### Apply a pre-trained model (CycleGAN)
-- You can download a pretrained model (e.g. horse2zebra) with the following script:
-```bash
-bash ./scripts/download_cyclegan_model.sh horse2zebra
-```
-- The pretrained model is saved at `./checkpoints/{name}_pretrained/latest_net_G.pth`. Check [here](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/scripts/download_cyclegan_model.sh#L3) for all the available CycleGAN models.
-- To test the model, you also need to download the  horse2zebra dataset:
-```bash
-bash ./datasets/download_cyclegan_dataset.sh horse2zebra
-```
 
-- Then generate the results using
-```bash
-python test.py --dataroot datasets/horse2zebra/testA --name horse2zebra_pretrained --model test --no_dropout
-```
-- The option `--model test` is used for generating results of CycleGAN only for one side. This option will automatically set `--dataset_mode single`, which only loads the images from one set. On the contrary, using `--model cycle_gan` requires loading and generating results in both directions, which is sometimes unnecessary. The results will be saved at `./results/`. Use `--results_dir {directory_path_to_save_result}` to specify the results directory.
-
-- For pix2pix and your own models, you need to explicitly specify `--netG`, `--norm`, `--no_dropout` to match the generator architecture of the trained model. See this [FAQ](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/docs/qa.md#runtimeerror-errors-in-loading-state_dict-812-671461-296) for more details.
 
 ### Apply a pre-trained model (pix2pix)
 Download a pre-trained model with `./scripts/download_pix2pix_model.sh`.

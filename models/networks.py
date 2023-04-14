@@ -8,7 +8,7 @@ import segmentation_models_pytorch as smp
 from models.external.pspnet.pspnet import PSPNet
 from .external.hrnet.hrnet import hrnet18, hrnet32, hrnet48
 from .external.deeplabv3plus.modeling import deeplabv3plus_mobilenet
-
+from .pspnet import PSPNet
 
 ###############################################################################
 # Helper Functions
@@ -163,49 +163,49 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
     elif netG == 'hrnet_18':
         net = hrnet18(progress=False, input_nc=input_nc, output_nc=output_nc, norm_layer=norm_layer)
     elif netG == 'hrnet_32':
+        print(input_nc)
         net = hrnet32(progress=False, input_nc=input_nc, output_nc=output_nc, norm_layer=norm_layer)
     elif netG == 'hrnet_48':
         net = hrnet48(progress=False, input_nc=input_nc, output_nc=output_nc, norm_layer=norm_layer)
-    elif netG == 'deeplabv3plus': # TODO: Add selection of different backbones
-        net = deeplabv3plus_mobilenet(num_classes=output_nc, output_stride=1) # TODO: Output stride above 1 maxes out 6GiB of VRAM
+    elif netG == 'deeplabv3plus':
+        ENCODER = 'resnet50' 
+        net = smp.DeepLabV3Plus(
+            encoder_name=ENCODER,
+            encoder_weights=None,
+            in_channels=input_nc,
+            classes=output_nc,
+            activation=nn.Tanh,
+        )
     elif netG == 'pspnet':
-        ENCODER = 'resnext50_32x4d'   
-        ACTIVATION = 'sigmoid' # could be None for logits or 'softmax2d' for multiclass segmentation
-
-        # create segmentation model with pretrained encoder
+        ENCODER = 'resnet50'   
         net = smp.PSPNet(
             encoder_name=ENCODER, 
-            encoder_weights='imagenet',
+            encoder_weights=None,
             in_channels=input_nc,
             classes=output_nc,
             psp_use_batchnorm=norm_layer!=None,    
-            activation=ACTIVATION,
+            activation=nn.Tanh,   
         )
     elif netG == 'unetpp':
-        ENCODER = 'resnext50_32x4d'   
-        ACTIVATION = 'sigmoid' # could be None for logits or 'softmax2d' for multiclass segmentation
-
-        # create segmentation model with pretrained encoder
+        ENCODER = 'resnet50'   
         net = smp.UnetPlusPlus(
             encoder_name=ENCODER, 
-            encoder_weights='imagenet',
+            encoder_weights=None,
             in_channels=input_nc,
             classes=output_nc,
             decoder_use_batchnorm=norm_layer!=None,    
-            activation=ACTIVATION,
+            activation=nn.Tanh,
         )
     elif netG == 'linknet':
-        ENCODER = 'resnext50_32x4d'   
-        ACTIVATION = 'sigmoid' # could be None for logits or 'softmax2d' for multiclass segmentation
-
-        # create segmentation model with pretrained encoder
+        # Create segmentation model with pretrained encoder
+        ENCODER = 'resnet50' 
         net = smp.Linknet(
             encoder_name=ENCODER, 
-            encoder_weights='imagenet',
+            encoder_weights=None,
             in_channels=input_nc,
             classes=output_nc,
             decoder_use_batchnorm=norm_layer!=None,    
-            activation=ACTIVATION,
+            activation=nn.Tanh,
         )
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)

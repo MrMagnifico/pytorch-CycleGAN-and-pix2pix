@@ -366,7 +366,8 @@ class HighResolutionNet(nn.Module):
                 out_channels=output_nc,
                 kernel_size=1,
                 stride=1,
-                padding=0)
+                padding=0),
+            nn.Tanh()
         )
 
 
@@ -535,12 +536,12 @@ def hrnet18(pretrained=True, progress=True, input_nc=3, output_nc=19, norm_layer
 def hrnet32(pretrained=True, progress=True, input_nc=3, output_nc=19, norm_layer=None, **kwargs):
     r"""HRNet-32 model
     """
-    return _hrnet('hrnet32', pretrained, progress, norm_layer,
+    return _hrnet('hrnet32', pretrained, progress, input_nc, output_nc, norm_layer,
                    **kwargs)
 
 
 def hrnet48(pretrained=True, progress=True, input_nc=3, output_nc=19, norm_layer=None, **kwargs):
     r"""HRNet-48 model
     """
-    return _hrnet('hrnet48', pretrained, progress, norm_layer, 
+    return _hrnet('hrnet48', pretrained, progress, input_nc, output_nc, norm_layer,
                    **kwargs)

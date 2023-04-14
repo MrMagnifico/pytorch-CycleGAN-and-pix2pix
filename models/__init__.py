@@ -17,7 +17,17 @@ In the function <__init__>, you need to define four lists:
 Now you can use the model class by specifying flag '--model dummy'.
 See our template model class 'template_model.py' for more details.
 """
-
+from .fcn import FCN8
+from .unet import UNet, UNetResnet
+from .segnet import SegNet
+from .segnet import SegResNet
+from .enet import ENet
+from .gcn import GCN
+from .deeplabv3_plus import DeepLab
+from .duc_hdc import DeepLab_DUC_HDC
+from .upernet import UperNet
+from .pspnet import PSPNet
+from .pspnet import PSPDenseNet
 import importlib
 from models.base_model import BaseModel
 
