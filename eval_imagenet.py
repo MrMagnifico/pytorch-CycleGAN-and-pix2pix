@@ -12,7 +12,6 @@ import torchvision.transforms as transforms
 import os
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 from tensorflow_addons.layers.normalizations import InstanceNormalization
 from tensorflow.keras.applications.inception_v3 import InceptionV3

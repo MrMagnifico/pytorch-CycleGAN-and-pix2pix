@@ -14,7 +14,7 @@ Image-to-Image Translation with Conditional Adversarial Networks.<br>
 ## Introduction
 TODO : ADD
 
-## Encoder Networks Tested
+## Decoder Networks Tested
 - Unet (default for pix2pix)
 - Unet++ [paper](https://arxiv.org/pdf/1807.10165.pdf)
 - DeepLabV3+ [paper](https://arxiv.org/abs/1802.02611)
@@ -25,22 +25,119 @@ TODO - ADD LINKS TO IMPLEMENTATIONS
 
 For each we followed the generator struture described in the paper (Convolution, Batch Normalisation, Relu).
 
-## Datasets
-Due to time limitations we tested only on the [facades](https://cmp.felk.cvut.cz/~tylecr1/facade/) dataset
+## Experimental setup
+Due to time limitations we tested only on the [facades](https://cmp.felk.cvut.cz/~tylecr1/facade/) dataset.
+
+A generator network was trained with each decoder for 200 epochs. The final results were then evaluated qualitatively (visual appearance) and quantitatively (via the FID score and a comparison of the loss scores). We chose the measures from this [paper](https://arxiv.org/abs/1802.03446) based on how useful they were for our purposes. 
 
 ## Mode collapse
 Following the architecture described in the paper (Convolution, Batch Normalisation, Relu), we encountered mode collapse (the GAN found a single image which would trick the discriminator):
+
 <img src='imgs/ModeCollapse.png' width=384>
 <br>
 
-This happened regardless of the encoder used in the generator. If the last ReLU activation layer was removed, patchy artificats were produced:
-<img src='imgs/artifacts.png' width=384>
+This happened regardless of the decoder used in the generator. If the last ReLU activation layer was removed, patchy artificats were produced (even at 200 epochs):
+
+<img src='imgs/artifcats.png' width=384>
 <br>
+
+The original implementation adds a TanH activation function at the outter most upscaling layer:
+
+```python
+if outermost:
+    upconv = nn.ConvTranspose2d(inner_nc * 2, outer_nc,
+                                  kernel_size=4, stride=2,
+                                  padding=1)
+    down = [downconv]
+    up = [uprelu, upconv, nn.Tanh()]
+    model = down + [submodule] + up
+
+```
+
+Thus we followed the same structure. All layers apart from the last one had a ReLU activation, while the outtermost one - a Tanh.
+
 
 ## Qualitative Evaluation
+| Real   |      Unet   |    Unet++    |    DeeplabV3+    |   PSPNet    |   LinkNet    | HRNET    |
+|----------|:---------:|:---------:|:---------:|:---------:|:---------:|----------:|
+| <img src='imgs/10_real_B.png' width=120> |  <img src='imgs/10_fake_B_unet.png' width=120> | <img src='imgs/10_fake_B_unetpp.png' width=120> |<img src='imgs/10_fake_B_deeplab.png' width=120> | <img src='imgs/10_fake_B_psp.png' width=120> | <img src='imgs/10_fake_B_linknet.png' width=120> | <img src='imgs/10_fake_B_hrnet.png' width=120> |
+| <img src='imgs/4_real_B.png' width=120> |  <img src='imgs/4_fake_B_unet.png' width=120> | <img src='imgs/4_fake_B_unetpp.png' width=120> |<img src='imgs/4_fake_B_deeplab.png' width=120> | <img src='imgs/4_fake_B_psp.png' width=120> | <img src='imgs/4_fake_B_linknet.png' width=120> | <img src='imgs/4_fake_B_hrnet.png' width=120> |
 
 
 <br>
+
+
+All generators were able to recreate some semblance of structure in the fake (or generated) image. Some notion of windows and a facade exist in all of them.
+
+Visually, PSPNet decoder gave the worst results. The final result is blurry and black patches can be seen in the same spot on all images. Second worst was the DeepLabV3+. A more clear structure can be seen in it, however some artifacts exist (bottom row is best seen) and the images are quite blurry. HRNet gave decent results, however they still look quite blurry. Surprisingly, the LinkNet produced a very clear and coherent image for the first input. The best performing were the two UNets (and close the LinkNet), though for the second row some artifacts can be seen (quite noticeable in the UNet++ and some in the UNet at the bottom part of the building).
+<br>
+
+## Quantitative Evaluation
+### FID scores
+
+The Frechet Inception Distance is used to evaluate the quality of generated images. It compares the excitation of a feature extractor of the ground truth and generated images to produce a single scalar score, where lower means better. Since the release of the paper in 2017, it has become a de facto standard for evaluating the performance of generative networks. 
+
+For the feature extractor we chose the InceptionV3. A batch of 40 previously unseen images were fed to the generator. The new "fake" images were then compared with the ground truth and the fid scores for each decoder are given below:
+
+|   |     FID    | 
+|----------|------:|
+| UNet (default) | 218.483 |
+| UNet++ |   244.796 |
+| DeepLabV3+ |    318.598 |
+| PSPNet |    416.964 |
+| LinkNet |    232.488 |
+| HRNet |    297.469 |
+
+PSPNet performed the worst (as evident by the results). Surprisingly, the LinkNet gave a lower result than the UNet++. Their stock UNet performed the best, but we attribute this to hyperparameter tuning, which we were not able to do, due to limited training time.
+
+
+### Colour distributions
+
+TODO: compare with K-S test
+
+Of interest could also be the colour disributions of each decoder. Our hypothesis is that decoders who give the best results also approximate well the colour distributions of the original images. Also it could be interesting to investigate whether some decoders generate a preference for certain colour extremes (darker images, more blue, etc).
+
+First we investigate the results of the stock unet decoder.
+
+<img src='imgs/red_pix2pixunet256.png' width=384>
+<br>
+<img src='imgs/blue_pix2pixunet256.png' width=384>
+<br>
+<img src='imgs/green_pix2pixunet256.png' width=384>
+<br>
+
+As seen, for all channels, the distribution of the real and fake images has a similar mean and a bump can be seen at the highest values (above 240). The spikes in the real distribution for values lower than 20 are because many of the source images includded black frames blocking part of the image. The unet generator estimates the true colour distribution well.
+
+
+First we investigate the results of the UNet++ decoder.
+
+<img src='imgs/red_pix2pixunetppnew.png' width=384>
+<br>
+<img src='imgs/blue_pix2pixunetppnew.png' width=384>
+<br>
+<img src='imgs/green_pix2pixunetppnew.png' width=384>
+<br>
+
+The UNet++ decoder estimates even better the true distribution with a much more noticeable spike at the mean value.
+
+Next is linknet.
+
+<img src='imgs/red_pix2pixlinknet.png' width=384>
+<br>
+<img src='imgs/blue_pix2pixlinknet.png' width=384>
+<br>
+<img src='imgs/green_pix2pixlinknet.png' width=384>
+<br>
+
+Linknet has a performance somewhere between the UNet++ and the Unet, with a much more lower spike in the mean values than UNet++.
+
+Lastly is PSPNet
+
+<img src='imgs/red_pix2pixpspnetnew.png' width=384>
+<br>
+<img src='imgs/blue_pix2pixpspnetnew.png' width=384>
+<br>
+<img src='imgs/green_pix2pixpspnetnew.png' width=384>
 <br>
 <br>
 
