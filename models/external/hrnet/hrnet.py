@@ -366,7 +366,8 @@ class HighResolutionNet(nn.Module):
                 out_channels=output_nc,
                 kernel_size=1,
                 stride=1,
-                padding=0)
+                padding=0),
+            nn.Tanh()
         )
 
 

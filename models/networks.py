@@ -163,6 +163,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
     elif netG == 'hrnet_18':
         net = hrnet18(progress=False, input_nc=input_nc, output_nc=output_nc, norm_layer=norm_layer)
     elif netG == 'hrnet_32':
+        print(input_nc)
         net = hrnet32(progress=False, input_nc=input_nc, output_nc=output_nc, norm_layer=norm_layer)
     elif netG == 'hrnet_48':
         net = hrnet48(progress=False, input_nc=input_nc, output_nc=output_nc, norm_layer=norm_layer)
@@ -214,7 +215,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
     
     # Print summary of the generator (assuming one batch of 256x256 RGB input)
-    # summary(net, input_size=(1, 3, 256, 256))
+    summary(net, input_size=(1, 3, 256, 256))
 
     return init_net(net, init_type, init_gain, gpu_ids)
 
