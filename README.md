@@ -91,6 +91,8 @@ For the feature extractor we chose the InceptionV3. A batch of 40 previously uns
 PSPNet performed the worst (as evident by the results). Surprisingly, the LinkNet gave a lower result than the UNet++. Their stock UNet performed the best, but we attribute this to hyperparameter tuning, which we were not able to do, due to limited training time.
 
 
+### Performance Over Epochs
+
 ### Colour distributions
 
 TODO: compare with K-S test
@@ -140,6 +142,16 @@ Lastly is PSPNet
 <img src='imgs/green_pix2pixpspnetnew.png' width=384>
 <br>
 <br>
+
+PSP net seems to have been influenced a lot more by the dark patches, generating a lot more black pixels compared to the other decoders. It also has a slightly off mean value for the blue pixel intensity distribution.
+
+## Discussion
+
+TODO: WHY ARE THE GOOD ONES GOOD AND THE BAD ONES BAD
+
+## Limitation and future work
+
+Due to time restrictions, the generators were trained only on the facade dataset. It would be interesting to see if the results also hold for other labeled datasets, on which pix2pix was evaluated.
 
 ## Getting Started
 ### Installation
