@@ -149,6 +149,18 @@ PSP net seems to have been influenced a lot more by the dark patches, generating
 
 TODO: WHY ARE THE GOOD ONES GOOD AND THE BAD ONES BAD
 
+The original paper used a UNet-based autoencoder with 6 downsampling (and corresponding upsampling layers) for their generator. The UNet was originally developed for biomedical image segmentation and was shown to outperform most other networks in most tasks where data is sparse. The facades dataset consists of about 500 images, which could be one of the resons why it is able to produce better results than other decoders.  
+
+The UNet++ was designed as an improvement to the original UNet network. It made use of improved skip connections and deep suppervision, the latter allowing for more stable results and faster convergeance. In [link] they demonstrated a minor improvement of the UNet++ autoencoder over its predecessor. Thus we expected the UNet++ to perform as well, if not better than the stock network. Throughout our tests we saw it perform close to the UNet autoencoder. As mentioned in the limitations section, we believe that with some hyper parameter tuning, UNet++ and LinkNet would have seen a decent improvement in performance.
+
+Unlike the previous two, LinkNet was not designed for the biomedical domain, but was instead intended for real-time visual semantic segmentation. It has an architecture similar to UNet, consisting of a downsampling part (convolution with relu and spatial maxpooling, as well as skip connections to the corresponding upsampling block). In our experiments it gave one of the sharpest (i.e. not blurry) and most structured outputs. 
+
+### Similar findings
+
+Of interest are two works [https://arxiv.org/pdf/2009.06412.pdf] and [https://ieeexplore.ieee.org/document/9213817], which both compared the performance of different autoencoder architectures on the same task. The former found that UNet and Linknet gave similar results, while both outperformed quite significantly PSPNet. The latter found a noticeable improvement of LinkNet above UNet. Our own findings mirrored those of the two papers, with the two UNet networks performing similar to LinkNet, and PSPNet giving a decently worse performance.
+
+
+
 ## Limitation and future work
 
 Due to time restrictions, the generators were trained only on the facade dataset. It would be interesting to see if the results also hold for other labeled datasets, on which pix2pix was evaluated.
