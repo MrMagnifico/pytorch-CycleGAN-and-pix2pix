@@ -1,173 +1,142 @@
-
-# CycleGAN and pix2pix in PyTorch - FORK
-## Nikolay Blagoev and William Narchi
-<br>
-
-## The aim of this project is to evaluate pix2pix with different generators
-<br>
+# Reproducibility Project Blog
+## Group Members
+- Nikolay Blagoev (4998901)
+- William Narchi (5046122)
 
 ## Original paper
-
 Image-to-Image Translation with Conditional Adversarial Networks.<br>
 [Phillip Isola](https://people.eecs.berkeley.edu/~isola), [Jun-Yan Zhu](https://www.cs.cmu.edu/~junyanz/), [Tinghui Zhou](https://people.eecs.berkeley.edu/~tinghuiz), [Alexei A. Efros](https://people.eecs.berkeley.edu/~efros). In CVPR 2017. [[Bibtex]](https://www.cs.cmu.edu/~junyanz/projects/pix2pix/pix2pix.bib)
 
 ## Introduction
-TODO : ADD
+Conditional adversarial networks are a popular architecture choice for generative models. The Pix2Pix paper examined by this reproducibility project presents a general **CGAN (Conditional General Adversarial Network)** that can be adapted for *any* image-to-image translation task. Put simply, given labelled samples in two related domains $A$ and $B$, a mapping from $A$ to $B$ (or vice versa) can be learned by the network.
 
-## Decoder Networks Tested
-- Unet (default for pix2pix)
-- Unet++ [paper](https://arxiv.org/pdf/1807.10165.pdf)
-- DeepLabV3+ [paper](https://arxiv.org/abs/1802.02611)
-- PSPNet [paper](https://arxiv.org/abs/1612.01105)
-- HRNet [paper](TODO : ADD)
-- LinkNet [paper](https://arxiv.org/abs/1707.03718)
-TODO - ADD LINKS TO IMPLEMENTATIONS
+The architecture of the network consists of a generator network and a discriminator network working against each other. The generator learns to generate plausible fake images in the target range that correspond to the source domain and the discriminator learns to differentiate real and fake (generator-created) images.
 
-For each we followed the generator struture described in the paper (Convolution, Batch Normalisation, Relu).
+The Pix2Pix paper utilises a modified variant of the [UNet](https://arxiv.org/abs/1505.04597) architecture as the generator. However, in principle, any network that performs [semantic segmentation](https://www.cs.toronto.edu/~tingwuwang/semantic_segmentation.pdf) can be used as the generator in the CGAN architecture. This project aims to compare the viability of popular semantic segmentation networks as replacements for the stock UNet presented in the original paper.
+
+## Generator Networks Tested
+- UNet [Architecture and implementation specified in Pix2Pix paper and stock codebase]
+- ResNet w/ 9 blocks [[Paper](https://arxiv.org/abs/1512.03385)] [Implementation in stock codebase]
+- UNet++ [[Paper](https://arxiv.org/pdf/1807.10165.pdf)] [SMP]
+- DeepLabV3+ [[Paper](https://arxiv.org/abs/1802.02611)] [SMP]
+- PSPNet [[Paper](https://arxiv.org/abs/1612.01105)] [SMP]
+- HRNet [[Paper](https://arxiv.org/abs/1908.07919)] [[Implementation](https://github.com/HRNet/HRNet-Semantic-Segmentation)]
+- LinkNet [[Paper](https://arxiv.org/abs/1707.03718)] [SMP]
+
+For each we model, we adapted its structure to follow the generator structure described in the Pix2Pix paper (convolution → batch normalisation → ReLu). For most models, the [SMP API](https://github.com/qubvel/segmentation_models.pytorch) implementation was utilised.
 
 ## Experimental setup
-Due to time limitations we tested only on the [facades](https://cmp.felk.cvut.cz/~tylecr1/facade/) dataset.
+Due to time limitations we tested only on the [`facades`](https://cmp.felk.cvut.cz/~tylecr1/facade/) dataset.
 
 A generator network was trained with each decoder for 200 epochs. The final results were then evaluated qualitatively (visual appearance) and quantitatively (via the FID score and a comparison of the loss scores). We chose the measures from this [paper](https://arxiv.org/abs/1802.03446) based on how useful they were for our purposes. 
 
 ## Mode collapse
-Following the architecture described in the paper (Convolution, Batch Normalisation, Relu), we encountered mode collapse (the GAN found a single image which would trick the discriminator):
+Following the architecture described in the paper (convolution → batch normalisation → ReLu), we encountered mode collapse (the generator found a single image which would consistently trick the discriminator):
 
+<br>
 <img src='imgs/ModeCollapse.png' width=384>
 <br>
 
-This happened regardless of the decoder used in the generator. If the last ReLU activation layer was removed, patchy artificats were produced (even at 200 epochs):
+This happened regardless of the exact model used as the generator. If the last ReLU activation layer was removed, patchy artifacts were produced (even at 200 epochs):
 
+<br>
 <img src='imgs/artifcats.png' width=384>
 <br>
 
-The original implementation adds a TanH activation function at the outter most upscaling layer:
-
+The original implementation adds a Tanh activation function at the outermost upscaling layer:
 ```python
 if outermost:
     upconv = nn.ConvTranspose2d(inner_nc * 2, outer_nc,
-                                  kernel_size=4, stride=2,
-                                  padding=1)
-    down = [downconv]
-    up = [uprelu, upconv, nn.Tanh()]
+                                kernel_size=4, stride=2,
+                                padding=1)
+    down  = [downconv]
+    up    = [uprelu, upconv, nn.Tanh()]
     model = down + [submodule] + up
 
 ```
-
-Thus we followed the same structure. All layers apart from the last one had a ReLU activation, while the outtermost one - a Tanh.
+Thus, we followed the same structure. All layers apart from the last one have a ReLU activation while the outtermost one has a Tanh.
 
 
 ## Qualitative Evaluation
-| Real   |      Unet   |    Unet++    |    DeeplabV3+    |   PSPNet    |   LinkNet    | HRNET    |
-|----------|:---------:|:---------:|:---------:|:---------:|:---------:|----------:|
-| <img src='imgs/10_real_B.png' width=120> |  <img src='imgs/10_fake_B_unet.png' width=120> | <img src='imgs/10_fake_B_unetpp.png' width=120> |<img src='imgs/10_fake_B_deeplab.png' width=120> | <img src='imgs/10_fake_B_psp.png' width=120> | <img src='imgs/10_fake_B_linknet.png' width=120> | <img src='imgs/10_fake_B_hrnet.png' width=120> |
-| <img src='imgs/4_real_B.png' width=120> |  <img src='imgs/4_fake_B_unet.png' width=120> | <img src='imgs/4_fake_B_unetpp.png' width=120> |<img src='imgs/4_fake_B_deeplab.png' width=120> | <img src='imgs/4_fake_B_psp.png' width=120> | <img src='imgs/4_fake_B_linknet.png' width=120> | <img src='imgs/4_fake_B_hrnet.png' width=120> |
-
-
-<br>
-
+| Real                                     | UNet                                          | ResNet (9 blocks)                               | UNet++                                          | DeepLabV3+                                       | PSPNet                                       | LinkNet                                          | HRNet                                          |
+|------------------------------------------|-----------------------------------------------|-------------------------------------------------|-------------------------------------------------|--------------------------------------------------|----------------------------------------------|--------------------------------------------------|------------------------------------------------|
+| <img src='imgs/10_real_B.png' width=120> | <img src='imgs/10_fake_B_unet.png' width=120> | <img src='imgs/10_fake_B_resnet.png' width=120> | <img src='imgs/10_fake_B_unetpp.png' width=120> | <img src='imgs/10_fake_B_deeplab.png' width=120> | <img src='imgs/10_fake_B_psp.png' width=120> | <img src='imgs/10_fake_B_linknet.png' width=120> | <img src='imgs/10_fake_B_hrnet.png' width=120> |
+| <img src='imgs/4_real_B.png' width=120>  | <img src='imgs/4_fake_B_unet.png' width=120>  | <img src='imgs/4_fake_B_resnet.png' width=120>  | <img src='imgs/4_fake_B_unetpp.png' width=120>  | <img src='imgs/4_fake_B_deeplab.png' width=120>  | <img src='imgs/4_fake_B_psp.png' width=120>  | <img src='imgs/4_fake_B_linknet.png' width=120>  | <img src='imgs/4_fake_B_hrnet.png' width=120>  |
 
 All generators were able to recreate some semblance of structure in the fake (or generated) image. Some notion of windows and a facade exist in all of them.
 
-Visually, PSPNet decoder gave the worst results. The final result is blurry and black patches can be seen in the same spot on all images. Second worst was the DeepLabV3+. A more clear structure can be seen in it, however some artifacts exist (bottom row is best seen) and the images are quite blurry. HRNet gave decent results, however they still look quite blurry. Surprisingly, the LinkNet produced a very clear and coherent image for the first input. The best performing were the two UNets (and close the LinkNet), though for the second row some artifacts can be seen (quite noticeable in the UNet++ and some in the UNet at the bottom part of the building).
-<br>
+Visually, PSPNet gave the worst results; the final result is blurry and black patches can be seen in the same spot on all images. The second worst was DeepLabV3+; a more clear structure can be seen in it, however some artifacts exist (bottom row is best seen) and the images are quite blurry. HRNet gave decent results, however they still look quite blurry. Surprisingly, the LinkNet produced a very clear and coherent image for the first input. The best performing were the two UNets, followed closely by LinkNet and the 9-block ResNet, though for the second row some artifacts can be seen (quite noticeable with UNet++ and 9-block Resnet, in addition to some with UNet at the bottom part of the building).
 
 ## Quantitative Evaluation
-### FID scores
+### FID Scores
+The **Frechet Inception Distance (FID)** is used to evaluate the quality of generated images. It compares the excitation of a feature extractor of the ground truth and generated images to produce a single scalar score, where lower means better. Since the release of the paper in 2017, it has become a de facto standard for evaluating the performance of generative networks. 
 
-The Frechet Inception Distance is used to evaluate the quality of generated images. It compares the excitation of a feature extractor of the ground truth and generated images to produce a single scalar score, where lower means better. Since the release of the paper in 2017, it has become a de facto standard for evaluating the performance of generative networks. 
+For the feature extractor, we chose the InceptionV3 model. A batch of 40 previously unseen images were fed to the generator. The new 'fake' images were then compared with the ground truth and the FID scores for each generator (evaluated after 200 epochs) are given below:
 
-For the feature extractor we chose the InceptionV3. A batch of 40 previously unseen images were fed to the generator. The new "fake" images were then compared with the ground truth and the fid scores for each decoder are given below:
+| Generator         | FID     |
+|-------------------|---------|
+| UNet (default)    | 218.483 |
+| ResNet (9 blocks) | 226.530 |
+| UNet++            | 244.796 |
+| DeepLabV3+        | 318.598 |
+| PSPNet            | 416.964 |
+| LinkNet           | 232.488 |
+| HRNet             | 297.469 |
 
-|   |     FID    | 
-|----------|------:|
-| UNet (default) | 218.483 |
-| UNet++ |   244.796 |
-| DeepLabV3+ |    318.598 |
-| PSPNet |    416.964 |
-| LinkNet |    232.488 |
-| HRNet |    297.469 |
-
-PSPNet performed the worst (as evident by the results). Surprisingly, the LinkNet gave a lower result than the UNet++. Their stock UNet performed the best, but we attribute this to hyperparameter tuning, which we were not able to do, due to limited training time.
-
+PSPNet performed the worst (as evident by the results). Surprisingly, LinkNet presented a better result than UNet++. The stock UNet variant used in the original paper performed the best, but we attribute this to hyperparameter tuning, which we were not able to perform due to limited training time.
 
 ### Performance Over Epochs
-
-### Colour distributions
-
+#### Colour Distributions
 TODO: compare with K-S test
 
-Of interest could also be the colour disributions of each decoder. Our hypothesis is that decoders who give the best results also approximate well the colour distributions of the original images. Also it could be interesting to investigate whether some decoders generate a preference for certain colour extremes (darker images, more blue, etc).
+A metric of interest is the colour disributions of the outputs of each generator. Our hypothesis is that generators which give the best results also approximate well the colour distributions of the original images. Also, it is interesting to investigate whether some generators demonstrate a preference for certain colour extremes (darker images, more blue, etc).
 
-First we investigate the results of the stock unet decoder.
-
+First we investigate the results of the stock UNet generator.
+<br>
 <img src='imgs/red_pix2pixunet256.png' width=384>
-<br>
 <img src='imgs/blue_pix2pixunet256.png' width=384>
-<br>
 <img src='imgs/green_pix2pixunet256.png' width=384>
+As can be seen - for all channels - the distributions of the real and fake images have a similar mean and a bump can be seen at the highest values (above 240). The spikes in the real distribution for values lower than 20 are because many of the source images include black frames blocking parts of the image. The UNet generator estimates the true colour distribution well.
+
+Next, we investigate the results of the UNet++ decoder.
 <br>
-
-As seen, for all channels, the distribution of the real and fake images has a similar mean and a bump can be seen at the highest values (above 240). The spikes in the real distribution for values lower than 20 are because many of the source images includded black frames blocking part of the image. The unet generator estimates the true colour distribution well.
-
-
-First we investigate the results of the UNet++ decoder.
-
 <img src='imgs/red_pix2pixunetppnew.png' width=384>
-<br>
 <img src='imgs/blue_pix2pixunetppnew.png' width=384>
-<br>
 <img src='imgs/green_pix2pixunetppnew.png' width=384>
-<br>
-
 The UNet++ decoder estimates even better the true distribution with a much more noticeable spike at the mean value.
 
-Next is linknet.
-
+Next is LinkNet.
+<br>
 <img src='imgs/red_pix2pixlinknet.png' width=384>
-<br>
 <img src='imgs/blue_pix2pixlinknet.png' width=384>
-<br>
 <img src='imgs/green_pix2pixlinknet.png' width=384>
-<br>
-
-Linknet has a performance somewhere between the UNet++ and the Unet, with a much more lower spike in the mean values than UNet++.
+LinkNet exhibits performance somewhere between UNet++ and UNet, with a much lower spike in the mean values than UNet++.
 
 Lastly is PSPNet
-
+<br>
 <img src='imgs/red_pix2pixpspnetnew.png' width=384>
-<br>
 <img src='imgs/blue_pix2pixpspnetnew.png' width=384>
-<br>
 <img src='imgs/green_pix2pixpspnetnew.png' width=384>
-<br>
-<br>
-
-PSP net seems to have been influenced a lot more by the dark patches, generating a lot more black pixels compared to the other decoders. It also has a slightly off mean value for the blue pixel intensity distribution.
+PSPNet seems to have been influenced a lot more by the dark patches, generating many more more black pixels compared to the other generators. It also has a slightly off mean value for the blue pixel intensity distribution.
 
 ## Discussion
-
-TODO: WHY ARE THE GOOD ONES GOOD AND THE BAD ONES BAD
-
-The original paper used a UNet-based autoencoder with 6 downsampling (and corresponding upsampling layers) for their generator. The UNet was originally developed for biomedical image segmentation and was shown to outperform most other networks in most tasks where data is sparse. The facades dataset consists of about 500 images, which could be one of the resons why it is able to produce better results than other decoders.  
+<!-- TODO: WHY ARE THE GOOD ONES GOOD AND THE BAD ONES BAD -->
+The original paper used a UNet-based autoencoder with 6 downsampling (and corresponding upsampling layers) for their generator. UNet was originally developed for biomedical image segmentation and was shown to outperform most other networks in most tasks where data is sparse. The `facades` dataset consists of about 500 images, which could be one of the resons why it is able to produce better results than other decoders.  
 
 The UNet++ was designed as an improvement to the original UNet network. It made use of improved skip connections and deep suppervision, the latter allowing for more stable results and faster convergeance. In [link] they demonstrated a minor improvement of the UNet++ autoencoder over its predecessor. Thus we expected the UNet++ to perform as well, if not better than the stock network. Throughout our tests we saw it perform close to the UNet autoencoder. As mentioned in the limitations section, we believe that with some hyper parameter tuning, UNet++ and LinkNet would have seen a decent improvement in performance.
 
-Unlike the previous two, LinkNet was not designed for the biomedical domain, but was instead intended for real-time visual semantic segmentation. It has an architecture similar to UNet, consisting of a downsampling part (convolution with relu and spatial maxpooling, as well as skip connections to the corresponding upsampling block). In our experiments it gave one of the sharpest (i.e. not blurry) and most structured outputs. 
+Unlike the previous two, LinkNet was not designed for the biomedical domain, but was instead intended for real-time visual semantic segmentation. It has an architecture similar to UNet, consisting of a downsampling part (convolution with ReLu and spatial maxpooling, as well as skip connections to the corresponding upsampling block). In our experiments it gave one of the sharpest (i.e. not blurry) and most structured outputs. 
 
 ### Similar findings
-
 Of interest are two works [https://arxiv.org/pdf/2009.06412.pdf] and [https://ieeexplore.ieee.org/document/9213817], which both compared the performance of different autoencoder architectures on the same task. The former found that UNet and Linknet gave similar results, while both outperformed quite significantly PSPNet. The latter found a noticeable improvement of LinkNet above UNet. Our own findings mirrored those of the two papers, with the two UNet networks performing similar to LinkNet, and PSPNet giving a decently worse performance.
 
+## Limitations and Future Work
+Due to time restrictions, the generators were trained only on the `facade` dataset. It would be interesting to see if the results also hold for other labeled datasets on which Pix2Pix was evaluated.
 
-
-## Limitation and future work
-
-Due to time restrictions, the generators were trained only on the facade dataset. It would be interesting to see if the results also hold for other labeled datasets, on which pix2pix was evaluated.
-
+<!------------------------------------------------------------------>
+# Original Repository README
 ## Getting Started
 ### Installation
-
 - Clone this repo:
 ```bash
 git clone https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix
