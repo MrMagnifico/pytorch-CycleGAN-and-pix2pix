@@ -87,7 +87,6 @@ PSPNet performed the worst (as evident by the results). Surprisingly, LinkNet pr
 
 ### Performance Over Epochs
 ### Colour Distributions
-TODO: compare with K-S test
 
 A metric of interest is the colour disributions of the outputs of each generator. Our hypothesis is that generators which give the best results also approximate well the colour distributions of the original images. Also, it is interesting to investigate whether some generators demonstrate a preference for certain colour extremes (darker images, more blue, etc).
 
