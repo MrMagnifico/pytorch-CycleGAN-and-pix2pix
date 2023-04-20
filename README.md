@@ -8,11 +8,11 @@ Image-to-Image Translation with Conditional Adversarial Networks.<br>
 [Phillip Isola](https://people.eecs.berkeley.edu/~isola), [Jun-Yan Zhu](https://www.cs.cmu.edu/~junyanz/), [Tinghui Zhou](https://people.eecs.berkeley.edu/~tinghuiz), [Alexei A. Efros](https://people.eecs.berkeley.edu/~efros). In CVPR 2017. [[Bibtex]](https://www.cs.cmu.edu/~junyanz/projects/pix2pix/pix2pix.bib)
 
 ## Introduction
-Conditional adversarial networks are a popular architecture choice for generative models. The Pix2Pix paper examined by this reproducibility project presents a general **CGAN (Conditional General Adversarial Network)** that can be adapted for *any* image-to-image translation task. Put simply, given labelled samples in two related domains $A$ and $B$, a mapping from $A$ to $B$ (or vice versa) can be learned by the network.
+Conditional adversarial networks are a popular architecture choice for generative models. The Pix2Pix paper examined by this reproducibility project presents a general **CGAN (Conditional General Adversarial Network)** that can be adapted for *any* image-to-image translation task. Put simply, given labelled samples in two related domains $A$ and $B$, a mapping from $A$ to $B$ (or vice versa) can be learned by the network [1].
 
-The architecture of the network consists of a generator network and a discriminator network working against each other. The generator learns to generate plausible fake images in the target range that correspond to the source domain and the discriminator learns to differentiate real and fake (generator-created) images.
+The architecture of the network consists of a generator network and a discriminator network working against each other [1]. The generator learns to generate plausible fake images in the target range that correspond to the source domain and the discriminator learns to differentiate real and fake (generator-created) images.
 
-The Pix2Pix paper utilises a modified variant of the [UNet](https://arxiv.org/abs/1505.04597) architecture as the generator. However, in principle, any network that performs [semantic segmentation](https://www.cs.toronto.edu/~tingwuwang/semantic_segmentation.pdf) can be used as the generator in the CGAN architecture. This project aims to compare the viability of popular semantic segmentation networks as replacements for the stock UNet presented in the original paper.
+The Pix2Pix paper utilises a modified variant of the [UNet](https://arxiv.org/abs/1505.04597) architecture as the generator [1], [2]. However, in principle, any network that performs [semantic segmentation](https://www.cs.toronto.edu/~tingwuwang/semantic_segmentation.pdf) can be used as the generator in the CGAN architecture. This project aims to compare the viability of popular semantic segmentation networks as replacements for the stock UNet presented in the original paper.
 
 ## Generator Networks Tested
 - UNet [Architecture and implementation specified in Pix2Pix paper and stock codebase]
@@ -23,12 +23,12 @@ The Pix2Pix paper utilises a modified variant of the [UNet](https://arxiv.org/ab
 - HRNet [[Paper](https://arxiv.org/abs/1908.07919)] [[Implementation](https://github.com/HRNet/HRNet-Semantic-Segmentation)]
 - LinkNet [[Paper](https://arxiv.org/abs/1707.03718)] [SMP]
 
-For each we model, we adapted its structure to follow the generator structure described in the Pix2Pix paper (convolution → batch normalisation → ReLu). For most models, the [SMP API](https://github.com/qubvel/segmentation_models.pytorch) implementation was utilised.
+For each we model, we adapted its structure to follow the generator structure described in the Pix2Pix paper (convolution → batch normalisation → ReLu) [1]. For most models, the [SMP API](https://github.com/qubvel/segmentation_models.pytorch) implementation was utilised.
 
 ## Experimental setup
-Due to time limitations we tested only on the [`facades`](https://cmp.felk.cvut.cz/~tylecr1/facade/) dataset.
+Due to time limitations we tested only on the [`facades`](https://cmp.felk.cvut.cz/~tylecr1/facade/) dataset [3].
 
-A generator network was trained with each decoder for 200 epochs. The final results were then evaluated qualitatively (visual appearance) and quantitatively (via the FID score and a comparison of the loss scores). We chose the measures from this [paper](https://arxiv.org/abs/1802.03446) based on how useful they were for our purposes. 
+A generator network was trained with each decoder for 200 epochs. The final results were then evaluated qualitatively (visual appearance) and quantitatively (via the FID score and a comparison of the loss scores). We chose the measures from [4](https://arxiv.org/abs/1802.03446) based on how useful they were for our purposes. 
 
 ## Mode collapse
 Following the architecture described in the paper (convolution → batch normalisation → ReLu), we encountered mode collapse (the generator found a single image which would consistently trick the discriminator):
@@ -69,9 +69,9 @@ Visually, PSPNet gave the worst results; the final result is blurry and black pa
 
 ## Quantitative Evaluation
 ### FID Scores
-The **Frechet Inception Distance (FID)** is used to evaluate the quality of generated images. It compares the excitation of a feature extractor of the ground truth and generated images to produce a single scalar score, where lower means better. Since the release of the paper in 2017, it has become a de facto standard for evaluating the performance of generative networks. 
+The **Frechet Inception Distance (FID)** is used to evaluate the quality of generated images. It compares the excitation of a feature extractor of the ground truth and generated images to produce a single scalar score, where lower means better. [5] Since the release of the paper in 2017, it has become a de facto standard for evaluating the performance of generative networks [4]. 
 
-For the feature extractor, we chose the InceptionV3 model. A batch of 40 previously unseen images were fed to the generator. The new 'fake' images were then compared with the ground truth and the FID scores for each generator (evaluated after 200 epochs) are given below:
+For the feature extractor, we chose the InceptionV3 model [6]. A batch of 40 previously unseen images were fed to the generator. The new 'fake' images were then compared with the ground truth and the FID scores for each generator (evaluated after 200 epochs) are given below:
 
 | Generator         | FID     |
 |-------------------|---------|
@@ -120,18 +120,48 @@ Lastly is PSPNet
 PSPNet seems to have been influenced a lot more by the dark patches, generating many more more black pixels compared to the other generators. It also has a slightly off mean value for the blue pixel intensity distribution.
 
 ## Discussion
-<!-- TODO: WHY ARE THE GOOD ONES GOOD AND THE BAD ONES BAD -->
-The original paper used a UNet-based autoencoder with 6 downsampling (and corresponding upsampling layers) for their generator. UNet was originally developed for biomedical image segmentation and was shown to outperform most other networks in most tasks where data is sparse. The `facades` dataset consists of about 500 images, which could be one of the resons why it is able to produce better results than other decoders.  
 
-The UNet++ was designed as an improvement to the original UNet network. It made use of improved skip connections and deep suppervision, the latter allowing for more stable results and faster convergeance. In [link] they demonstrated a minor improvement of the UNet++ autoencoder over its predecessor. Thus we expected the UNet++ to perform as well, if not better than the stock network. Throughout our tests we saw it perform close to the UNet autoencoder. As mentioned in the limitations section, we believe that with some hyper parameter tuning, UNet++ and LinkNet would have seen a decent improvement in performance.
+The original paper used a UNet-based autoencoder with 6 downsampling (and corresponding upsampling layers) for their generator [1]. UNet was originally developed for biomedical image segmentation and was shown to outperform most other networks in most tasks where data is sparse [2]. The `facades` dataset consists of about 500 images, which could be one of the resons why it is able to produce better results than other decoders [3].  
 
-Unlike the previous two, LinkNet was not designed for the biomedical domain, but was instead intended for real-time visual semantic segmentation. It has an architecture similar to UNet, consisting of a downsampling part (convolution with ReLu and spatial maxpooling, as well as skip connections to the corresponding upsampling block). In our experiments it gave one of the sharpest (i.e. not blurry) and most structured outputs. 
+The UNet++ was designed as an improvement to the original UNet network. It made use of improved skip connections and deep suppervision, the latter allowing for more stable results and faster convergeance [7]. In [[7](https://arxiv.org/pdf/1807.10165.pdf)] they demonstrated a minor improvement of the UNet++ autoencoder over its predecessor. Thus we expected the UNet++ to perform as well, if not better than the stock network. Throughout our tests we saw it perform close to the UNet autoencoder. As mentioned in the limitations section, we believe that with some hyper parameter tuning, UNet++ and LinkNet would have seen a decent improvement in performance.
+
+Unlike the previous two, LinkNet was not designed for the biomedical domain, but was instead intended for real-time visual semantic segmentation [8]. It has an architecture similar to UNet, consisting of a downsampling part (convolution with ReLu and spatial maxpooling, as well as skip connections to the corresponding upsampling block) [8]. In our experiments it gave one of the sharpest (i.e. not blurry) and most structured outputs. 
 
 ### Similar findings
-Of interest are two works [https://arxiv.org/pdf/2009.06412.pdf] and [https://ieeexplore.ieee.org/document/9213817], which both compared the performance of different autoencoder architectures on the same task. The former found that UNet and Linknet gave similar results, while both outperformed quite significantly PSPNet. The latter found a noticeable improvement of LinkNet above UNet. Our own findings mirrored those of the two papers, with the two UNet networks performing similar to LinkNet, and PSPNet giving a decently worse performance.
+Of interest are two works [[9]](https://arxiv.org/pdf/2009.06412.pdf) and [[10]](https://ieeexplore.ieee.org/document/9213817), which both compared the performance of different autoencoder architectures on the same task. The former found that UNet and Linknet gave similar results, while both outperformed quite significantly PSPNet. The latter found a noticeable improvement of LinkNet above UNet. Our own findings mirrored those of the two papers, with the two UNet networks performing similar to LinkNet, and PSPNet giving a decently worse performance.
 
 ## Limitations and Future Work
 Due to time restrictions, the generators were trained only on the `facade` dataset. It would be interesting to see if the results also hold for other labeled datasets on which Pix2Pix was evaluated.
+
+Also, as mentioned before, we were not able to perform hyperparameter tuning, which we recognise as a potential reason why all architectures proposed by us performed worse than the defaul UNet (the one used in the original paper). However, as seen, LinkNet and UNet++ both came close in performance without any additional optimisation.
+
+## Work Distribution
+
+William Narch - added HRNet and DeeplabV3+. Tested each architecture's performance over the epochs. Trained the models. Wrote introduction
+
+Nikolay Blagoev - added UNet++, LinkNet, PSPNet. Performed FID evaluation and colour distribution comparison. Wrote qualitative evaluation and discussion.
+
+## Bibliography
+
+[1] P. Isola, J.-Y. Zhu, T. Zhou, and A. A. Efros, “Image-to-image translation with conditional adversarial networks,” 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2017.  
+
+[2] Ronneberger, O., Fischer, P., & Brox, T. (2015). U-net: Convolutional networks for biomedical image segmentation. In Medical Image Computing and Computer-Assisted Intervention–MICCAI 2015: 18th International Conference, Munich, Germany, October 5-9, 2015, Proceedings, Part III 18 (pp. 234-241). Springer International Publishing.
+
+[3] R. Tyleček and R. Šára, “Spatial pattern templates for recognition of objects with regular structure,” Lecture Notes in Computer Science, pp. 364–374, 2013. 
+
+[4] A. Borji, “Pros and cons of gan evaluation measures,” Computer Vision and Image Understanding, vol. 179, pp. 41–65, 2019. 
+
+[5] M. Heusel, H. Ramsauer, T. Unterthiner, B. Nessler, and S. Hochreiter, ‘GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium’, in Advances in Neural Information Processing Systems, 2017, vol. 30.
+
+[6] C. Szegedy et al., ‘Going Deeper with Convolutions’, CoRR, vol. abs/1409.4842, 2014.
+
+[7] Z. Zhou, M. M. R. Siddiquee, N. Tajbakhsh, and J. Liang, ‘UNet++: A Nested U-Net Architecture for Medical Image Segmentation’, CoRR, vol. abs/1807.10165, 2018.
+
+[8] A. Chaurasia and E. Culurciello, ‘LinkNet: Exploiting Encoder Representations for Efficient Semantic Segmentation’, CoRR, vol. abs/1707.03718, 2017.
+
+[9] P. Bizopoulos, N. Vretos, and P. Daras, ‘Comprehensive Comparison of Deep Learning Models for Lung and COVID-19 Lesion Segmentation in CT scans’, arXiv [eess.IV]. 2022.
+
+[10] V. A. Natarajan, M. Sunil Kumar, R. Patan, S. Kallam, and M. Y. Noor Mohamed, ‘Segmentation of Nuclei in Histopathology images using Fully Convolutional Deep Neural Architecture’, in 2020 International Conference on Computing and Information Technology (ICCIT-1441), 2020, pp. 1–7.
 
 <!------------------------------------------------------------------>
 # Original Repository README
