@@ -167,13 +167,17 @@ Due to time restrictions, the generators were trained only on the `facade` datas
 Also, as mentioned before, we were not able to perform hyperparameter tuning, which we recognise as a potential reason why all architectures proposed by us performed worse than the defaul UNet (the one used in the original paper). However, as seen, LinkNet and UNet++ both came close in performance without any additional optimisation.
 
 ## Work Distribution
-
-William Narch - added HRNet and DeeplabV3+. Tested each architecture's performance over the epochs. Trained the models. Wrote introduction
-
-Nikolay Blagoev - added UNet++, LinkNet, PSPNet. Performed FID evaluation and colour distribution comparison. Wrote qualitative evaluation and discussion.
+- Nikolay Blagoev
+  - Added UNet++, LinkNet, and PSPNet
+  - Performed FID evaluation and colour distribution comparison
+  - Wrote qualitative evaluation and discussion
+- William Narchi
+  - Added HRNet and DeeplabV3+
+  - Tested each generator's performance over epochs
+  - Trained the models
+  - Wrote introduction
 
 ## Bibliography
-
 [1] P. Isola, J.-Y. Zhu, T. Zhou, and A. A. Efros, “Image-to-image translation with conditional adversarial networks,” 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2017.  
 
 [2] Ronneberger, O., Fischer, P., & Brox, T. (2015). U-net: Convolutional networks for biomedical image segmentation. In Medical Image Computing and Computer-Assisted Intervention–MICCAI 2015: 18th International Conference, Munich, Germany, October 5-9, 2015, Proceedings, Part III 18 (pp. 234-241). Springer International Publishing.
