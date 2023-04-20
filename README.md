@@ -1,7 +1,7 @@
 # Reproducibility Project Blog
 ## Group Members
-- Nikolay Blagoev (4998901)
-- William Narchi (5046122)
+- Nikolay Blagoev (4998901 - <N.Blagoev@student.tudelft.nl>)
+- William Narchi  (5046122 - <w.narchi-1@student.tudelft.nl>)
 
 ## Original paper
 Image-to-Image Translation with Conditional Adversarial Networks.<br>
