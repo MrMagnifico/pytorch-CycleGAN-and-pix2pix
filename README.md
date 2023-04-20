@@ -86,7 +86,7 @@ For the feature extractor, we chose the InceptionV3 model [6]. A batch of 40 pre
 PSPNet performed the worst (as evident by the results). Surprisingly, LinkNet presented a better result than UNet++. The stock UNet variant used in the original paper performed the best, but we attribute this to hyperparameter tuning, which we were not able to perform due to limited training time.
 
 ### Performance Over Epochs
-#### Colour Distributions
+### Colour Distributions
 TODO: compare with K-S test
 
 A metric of interest is the colour disributions of the outputs of each generator. Our hypothesis is that generators which give the best results also approximate well the colour distributions of the original images. Also, it is interesting to investigate whether some generators demonstrate a preference for certain colour extremes (darker images, more blue, etc).
@@ -96,6 +96,7 @@ First we investigate the results of the stock UNet generator.
 <img src='imgs/red_pix2pixunet256.png' width=384>
 <img src='imgs/blue_pix2pixunet256.png' width=384>
 <img src='imgs/green_pix2pixunet256.png' width=384>
+<br>
 As can be seen - for all channels - the distributions of the real and fake images have a similar mean and a bump can be seen at the highest values (above 240). The spikes in the real distribution for values lower than 20 are because many of the source images include black frames blocking parts of the image. The UNet generator estimates the true colour distribution well.
 
 Next, we investigate the results of the UNet++ decoder.
@@ -103,6 +104,7 @@ Next, we investigate the results of the UNet++ decoder.
 <img src='imgs/red_pix2pixunetppnew.png' width=384>
 <img src='imgs/blue_pix2pixunetppnew.png' width=384>
 <img src='imgs/green_pix2pixunetppnew.png' width=384>
+<br>
 The UNet++ decoder estimates even better the true distribution with a much more noticeable spike at the mean value.
 
 Next is LinkNet.
@@ -110,6 +112,7 @@ Next is LinkNet.
 <img src='imgs/red_pix2pixlinknet.png' width=384>
 <img src='imgs/blue_pix2pixlinknet.png' width=384>
 <img src='imgs/green_pix2pixlinknet.png' width=384>
+<br>
 LinkNet exhibits performance somewhere between UNet++ and UNet, with a much lower spike in the mean values than UNet++.
 
 Lastly is PSPNet
@@ -117,6 +120,7 @@ Lastly is PSPNet
 <img src='imgs/red_pix2pixpspnetnew.png' width=384>
 <img src='imgs/blue_pix2pixpspnetnew.png' width=384>
 <img src='imgs/green_pix2pixpspnetnew.png' width=384>
+<br>
 PSPNet seems to have been influenced a lot more by the dark patches, generating many more more black pixels compared to the other generators. It also has a slightly off mean value for the blue pixel intensity distribution.
 
 ## Discussion
