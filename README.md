@@ -1,4 +1,4 @@
-# Reproducibility Project Blog
+# Performing Brain Transplants on Pix2Pix
 ## Group Members
 - Nikolay Blagoev (4998901 - <N.Blagoev@student.tudelft.nl>)
 - William Narchi  (5046122 - <w.narchi-1@student.tudelft.nl>)
@@ -8,9 +8,9 @@ Image-to-Image Translation with Conditional Adversarial Networks.<br>
 [Phillip Isola](https://people.eecs.berkeley.edu/~isola), [Jun-Yan Zhu](https://www.cs.cmu.edu/~junyanz/), [Tinghui Zhou](https://people.eecs.berkeley.edu/~tinghuiz), [Alexei A. Efros](https://people.eecs.berkeley.edu/~efros). In CVPR 2017. [[Bibtex]](https://www.cs.cmu.edu/~junyanz/projects/pix2pix/pix2pix.bib)
 
 ## Introduction
-Conditional adversarial networks are a popular architecture choice for generative models. The Pix2Pix paper examined by this reproducibility project presents a general **CGAN (Conditional General Adversarial Network)** that can be adapted for *any* image-to-image translation task. Put simply, given labelled samples in two related domains $A$ and $B$, a mapping from $A$ to $B$ (or vice versa) can be learned by the network [1].
+Conditional adversarial networks are a popular architecture choice for generative models. The Pix2Pix paper examined by this reproducibility project presents a general **CGAN (Conditional Generative Adversarial Network)** that can be adapted for *any* image-to-image translation task. Put simply, given labelled samples in two related domains $A$ and $B$, a mapping from $A$ to $B$ (or vice versa) can be learned by the network [1].
 
-The architecture of the network consists of a generator network and a discriminator network working against each other [1]. The generator learns to generate plausible fake images in the target range that correspond to the source domain and the discriminator learns to differentiate real and fake (generator-created) images.
+The architecture of the network consists of a generator network and a discriminator network working against each other [1]. The generator learns to generate plausible fake images in the target range that correspond to the source domain and the discriminator learns to differentiate real and fake (generator-created) images. Being a CGAN, the generator is provided as input both a sample from the domain and its corresponding class, hence it attempts to learn the distribution of the data conditioned on the corresponding label [11].
 
 The Pix2Pix paper utilises a modified variant of the [UNet](https://arxiv.org/abs/1505.04597) architecture as the generator [1], [2]. However, in principle, any network that performs [semantic segmentation](https://www.cs.toronto.edu/~tingwuwang/semantic_segmentation.pdf) can be used as the generator in the CGAN architecture. This project aims to compare the viability of popular semantic segmentation networks as replacements for the stock UNet presented in the original paper.
 
@@ -40,7 +40,7 @@ Following the architecture described in the paper (convolution → batch normali
 This happened regardless of the exact model used as the generator. If the last ReLU activation layer was removed, patchy artifacts were produced (even at 200 epochs):
 
 <br>
-<img src='imgs/artifcats.png' width=384>
+<img src='imgs/artifacts.png' width=384>
 <br>
 
 The original implementation adds a Tanh activation function at the outermost upscaling layer:
@@ -68,6 +68,7 @@ All generators were able to recreate some semblance of structure in the fake (or
 Visually, PSPNet gave the worst results; the final result is blurry and black patches can be seen in the same spot on all images. The second worst was DeepLabV3+; a more clear structure can be seen in it, however some artifacts exist (bottom row is best seen) and the images are quite blurry. HRNet gave decent results, however they still look quite blurry. Surprisingly, the LinkNet produced a very clear and coherent image for the first input. The best performing were the two UNets, followed closely by LinkNet and the 9-block ResNet, though for the second row some artifacts can be seen (quite noticeable with UNet++ and 9-block Resnet, in addition to some with UNet at the bottom part of the building).
 
 ## Quantitative Evaluation
+
 ### FID Scores
 The **Frechet Inception Distance (FID)** is used to evaluate the quality of generated images. It compares the excitation of a feature extractor of the ground truth and generated images to produce a single scalar score, where lower means better. [5] Since the release of the paper in 2017, it has become a de facto standard for evaluating the performance of generative networks [4]. 
 
@@ -77,15 +78,46 @@ For the feature extractor, we chose the InceptionV3 model [6]. A batch of 40 pre
 |-------------------|---------|
 | UNet (default)    | 218.483 |
 | ResNet (9 blocks) | 226.530 |
+| LinkNet           | 232.488 |
 | UNet++            | 244.796 |
+| HRNet             | 297.469 |
 | DeepLabV3+        | 318.598 |
 | PSPNet            | 416.964 |
-| LinkNet           | 232.488 |
-| HRNet             | 297.469 |
 
 PSPNet performed the worst (as evident by the results). Surprisingly, LinkNet presented a better result than UNet++. The stock UNet variant used in the original paper performed the best, but we attribute this to hyperparameter tuning, which we were not able to perform due to limited training time.
 
 ### Performance Over Epochs
+#### Losses
+Provided are the values of the loss terms for both the generator and discriminator plotted against training epochs for all tested generators. All generators exhibit a decrease in L1 loss over time. As for GAN loss, it remains fairly stationary for the more performant generators, while increasing steadily for the worse performing ones. Similarly, the discriminator's losses seem to fluctuate with the more performant generators whereas it remains fairly stationary for the worse performing ones, demonstrating the performant generators' abilities to fool the discriminator more consistently than the worse performing ones.
+
+##### UNet
+<img src='imgs/G_pix2pixunet256.png' width=384>
+<img src='imgs/D_pix2pixunet256.png' width=384>
+
+##### ResNet
+<img src='imgs/G_pix2pixresnet9blocks.png' width=384>
+<img src='imgs/D_pix2pixresnet9blocks.png' width=384>
+
+##### UNet++
+<img src='imgs/G_pix2pixunetppnew.png' width=384>
+<img src='imgs/D_pix2pixunetppnew.png' width=384>
+
+##### DeepLabV3+
+<img src='imgs/G_pix2pixdeeplabv3plus.png' width=384>
+<img src='imgs/D_pix2pixdeeplabv3plus.png' width=384>
+
+##### PSPNet
+<img src='imgs/G_pix2pixpspnetnew.png' width=384>
+<img src='imgs/D_pix2pixpspnetnew.png' width=384>
+
+##### LinkNet
+<img src='imgs/G_pix2pixlinknet.png' width=384>
+<img src='imgs/D_pix2pixlinknet.png' width=384>
+
+##### HRNet
+<img src='imgs/G_pix2pixhrnet48.png' width=384>
+<img src='imgs/D_pix2pixhrnet48.png' width=384>
+
 #### FID Scores
 In order to better understand how the generators' performance evolves over time, we provide graphs of FID scores plotted against training epochs for all tested generators.
 
@@ -197,6 +229,8 @@ Also, as mentioned before, we were not able to perform hyperparameter tuning, wh
 [9] P. Bizopoulos, N. Vretos, and P. Daras, ‘Comprehensive Comparison of Deep Learning Models for Lung and COVID-19 Lesion Segmentation in CT scans’, arXiv [eess.IV]. 2022.
 
 [10] V. A. Natarajan, M. Sunil Kumar, R. Patan, S. Kallam, and M. Y. Noor Mohamed, ‘Segmentation of Nuclei in Histopathology images using Fully Convolutional Deep Neural Architecture’, in 2020 International Conference on Computing and Information Technology (ICCIT-1441), 2020, pp. 1–7.
+
+[11] I.J. Goodfellow, J. Pouget-Abadie, M. Mirza, B. Xu, D. Warde-Farley, S. Ozair, A. Courville, Y. Bengio, Generative Adversarial Networks, 2014.
 
 <!------------------------------------------------------------------>
 # Original Repository README
