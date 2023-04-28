@@ -190,7 +190,7 @@ The UNet++ was designed as an improvement to the original UNet network. It made 
 
 Unlike the previous two, LinkNet was not designed for the biomedical domain, but was instead intended for real-time visual semantic segmentation [8]. It has an architecture similar to UNet, consisting of a downsampling part (convolution with ReLu and spatial maxpooling, as well as skip connections to the corresponding upsampling block) [8]. In our experiments it gave one of the sharpest (i.e. not blurry) and most structured outputs. 
 
-
+The worst performing one, PSPNet, was expected to give one of the best results in this study. The network was originally designed for tasks similar to the facades segmentation. One reason we identify as potential cause of PSPNet's malperfomance, is that in the original paper the authors do not make use of skip connections but instead rely on deep supervision. For our training we however did not make use of this technique.
 
 ### Similar findings
 Of interest are two works [[9]](https://arxiv.org/pdf/2009.06412.pdf) and [[10]](https://ieeexplore.ieee.org/document/9213817), which both compared the performance of different autoencoder architectures on the same task. The former found that UNet and Linknet gave similar results, while both outperformed quite significantly PSPNet. The latter found a noticeable improvement of LinkNet above UNet. Our own findings mirrored those of the two papers, with the two UNet networks performing similar to LinkNet, and PSPNet giving a decently worse performance. Bare in mind that both of these were performed for the medical domain, which could give some bias to the performance of unet. To the best of our knowledge, there is no comparison performed on different network architectures for other domains.
